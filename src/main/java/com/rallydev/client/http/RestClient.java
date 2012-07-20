@@ -9,7 +9,11 @@ public class RestClient {
     private final SharedResourcePool<String> urlPool;
 
     public RestClient(String... urls) {
-        httpClient = new RallyHttpClient();
+        this(new RallyHttpClient(), urls);
+    }
+
+    public RestClient(RallyHttpClient httpClient, String... urls) {
+        this.httpClient = httpClient;
         this.urlPool = SharedResourcePool.of(urls);
     }
 
