@@ -9,7 +9,7 @@ repositories.release_to = 'http://alm-build:8080/nexus/content/repositories/rele
 
 desc 'Rally Rest Client'
 define 'restclient', :group=> GROUP, :version=> VERSION do
-    extend Rally::OpenSourceLicenseExtension
+    extend Rally::ArtifactLicenseExtension
     extend Rally::Build::Dependencies::PomGenerator
 
   compile.with artifact_ns.compile
@@ -17,7 +17,7 @@ define 'restclient', :group=> GROUP, :version=> VERSION do
   test.using :testng
   test.with artifact_ns.test
 
-  package(:jar).meta_inf << path_to(:target, "artifacts_report.txt")
+  package(:jar).meta_inf << path_to(:target, "artifacts_report.csv")
 
   package :javadoc
   package :sources
@@ -25,4 +25,10 @@ define 'restclient', :group=> GROUP, :version=> VERSION do
 end
 
 desc 'Checks open source licenses for violations'
-Project.local_task(:"restclient:oss:license:check")
+Project.local_task(:"restclient:artifact:license:check")
+
+desc 'Report on project artifact licenses'
+Project.local_task(:"restclient:artifact:license:report")
+
+desc "Dump the known licenses in the config.yaml license-metadata element"
+Project.local_task(:"restclient:artifact:license:known:licenses")
