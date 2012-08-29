@@ -7,11 +7,13 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -23,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class RallyHttpClient implements Closeable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RallyHttpClient.class);
+
     private static final int DEFAULT_CXN_PER_HOST = 30;
     private static final int DEFAULT_TIMEOUT = 2;
 
@@ -48,18 +52,18 @@ public class RallyHttpClient implements Closeable {
         this.timeoutUnit = timeoutUnit;
     }
 
-    public HttpResponse execute(String url, HttpRequest request) throws IOException {
-        final HttpUriRequest method = createRequest(url, request);
+    public HttpResponse execute(String url, HttpRequest restRequest) throws IOException {
+        HttpRequestBase request = createRequest(url, restRequest);
 
         try {
-            org.apache.http.HttpResponse response = timedRequest(method);
+            org.apache.http.HttpResponse response = timedRequest(request);
             HttpEntity entity = response.getEntity();
 
             if (entity == null) throw new UnexpectedResponseException();
 
             return new HttpResponse(response.getStatusLine().getStatusCode(), EntityUtils.toString(entity));
         } catch (Exception e) {
-            method.abort();
+            request.abort();
             throw new HttpClientException(e);
         }
     }
@@ -70,7 +74,7 @@ public class RallyHttpClient implements Closeable {
         executor.shutdown();
     }
 
-    private HttpUriRequest createRequest(String url, HttpRequest request) throws IOException {
+    private HttpRequestBase createRequest(String url, HttpRequest request) throws IOException {
         String uri = url + request.getURI();
 
         switch (request.getMethod()) {
@@ -87,23 +91,25 @@ public class RallyHttpClient implements Closeable {
         }
     }
 
-    private HttpUriRequest applyEntity(HttpEntityEnclosingRequestBase httpRequest, HttpRequest request) throws IOException {
+    private HttpRequestBase applyEntity(HttpEntityEnclosingRequestBase httpRequest, HttpRequest request) throws IOException {
         httpRequest.setEntity(new StringEntity(request.getBody()));
         return httpRequest;
     }
 
-    private HttpUriRequest applyHeaders(HttpUriRequest httpRequest, HttpRequest request) {
+    private HttpRequestBase applyHeaders(HttpRequestBase httpRequest, HttpRequest request) {
         httpRequest.setHeaders(request.getHeaders());
         return httpRequest;
     }
 
-    private org.apache.http.HttpResponse timedRequest(final HttpUriRequest method) throws Exception {
-        Future<org.apache.http.HttpResponse> responseFuture = executor.submit(new RequestTask(client, method));
+    private org.apache.http.HttpResponse timedRequest(HttpRequestBase request) throws Exception {
+        Future<org.apache.http.HttpResponse> responseFuture = executor.submit(new RequestTask(client, request));
 
         try {
             return responseFuture.get(timeout, timeoutUnit);
         } finally {
-            responseFuture.cancel(true);
+            if(responseFuture.cancel(true)) {
+                LOGGER.warn("REQUEST TIMEOUT: " + request.getRequestLine());
+            }
         }
     }
 }
