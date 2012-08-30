@@ -20,7 +20,7 @@ public class SharedResourcePool<T> {
     public SharedResourcePool(UsageStrategy resourceUsage, SharedResource<T>... resources) {
         this(resourceUsage, asList(resources));
     }
-    
+
     public SharedResourcePool(UsageStrategy resourceUsage, List<SharedResource<T>> resources) {
         this.resourceUsage = resourceUsage;
 
@@ -29,6 +29,10 @@ public class SharedResourcePool<T> {
     }
 
     public static <T> SharedResourcePool<T> of(T... resources) {
+        return of(asList(resources));
+    }
+
+    public static <T> SharedResourcePool<T> of(List<T> resources) {
         SystemTicker ticker = new SystemTicker();
         List<SharedResource<T>> sharedResources = new ArrayList<SharedResource<T>>();
         

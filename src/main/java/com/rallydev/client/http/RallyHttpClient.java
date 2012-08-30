@@ -75,7 +75,11 @@ public class RallyHttpClient implements Closeable {
     }
 
     private HttpRequestBase createRequest(String url, HttpRequest request) throws IOException {
-        String uri = url + request.getURI();
+        String uri = url;
+        if (!uri.endsWith("/")) {
+            uri += "/";
+        }
+        uri += request.getURI();
 
         switch (request.getMethod()) {
             case GET:
