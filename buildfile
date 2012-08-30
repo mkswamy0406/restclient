@@ -32,3 +32,9 @@ Project.local_task(:"restclient:artifact:license:report")
 
 desc "Dump the known licenses in the config.yaml license-metadata element"
 Project.local_task(:"restclient:artifact:license:known:licenses")
+
+desc "Show the global config.yaml file contents"
+Project.local_task(:"restclient:artifact:license:show:global")
+
+desc 'Show the project local oss license config.yaml file'
+Project.local_task(:"restclient:artifact:license:show:local")
