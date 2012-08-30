@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class RallyHttpClient implements Closeable {
@@ -73,35 +74,39 @@ public class RallyHttpClient implements Closeable {
         connectionManager.shutdown();
         executor.shutdown();
     }
-
-    private HttpRequestBase createRequest(String url, HttpRequest request) throws IOException {
-        String uri = url;
-        if (!uri.endsWith("/")) {
-            uri += "/";
-        }
-        uri += request.getURI();
+    
+    protected HttpRequestBase createRequest(String url, HttpRequest request) throws IOException {
+        String uri = buildUri(url, request);
+        HttpRequestBase requestBase;
 
         switch (request.getMethod()) {
             case GET:
-                return applyHeaders(new HttpGet(uri), request);
+                requestBase = new HttpGet(uri); break;
             case DELETE:
-                return applyHeaders(new HttpDelete(uri), request);
+                requestBase = new HttpDelete(uri); break;
             case PUT:
-                return applyHeaders(applyEntity(new HttpPut(uri), request), request);
+                requestBase = applyEntity(new HttpPut(uri), request); break;
             case POST:
-                return applyHeaders(applyEntity(new HttpPost(uri), request), request);
+                requestBase = applyEntity(new HttpPost(uri), request); break;
             default:
                 throw new IllegalArgumentException("Unknown request type: " + request.getMethod().name());
         }
+        
+        requestBase.setHeaders(request.getHeaders());
+        return requestBase;
+    }
+
+    private String buildUri(String url, HttpRequest request) {
+        String formatString = "%s/%s";
+
+        if (url.endsWith("/"))  {
+            formatString = "%s%s";
+        }
+        return format(formatString, url, request.getURI());
     }
 
     private HttpRequestBase applyEntity(HttpEntityEnclosingRequestBase httpRequest, HttpRequest request) throws IOException {
         httpRequest.setEntity(new StringEntity(request.getBody()));
-        return httpRequest;
-    }
-
-    private HttpRequestBase applyHeaders(HttpRequestBase httpRequest, HttpRequest request) {
-        httpRequest.setHeaders(request.getHeaders());
         return httpRequest;
     }
 
