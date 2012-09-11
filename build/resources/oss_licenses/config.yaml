@@ -19,6 +19,7 @@ license-metadata:
 #    keywords-ids:
 #      - Indiana University Extreme! Lab Software License Version 1.1.1.keywords
 #    url: https://wiki.kuali.org/display/KULFOUND/IU+Extreme!+Lab+Software+License
+#    aliases: (a list of other names for this license) - optional
 #    license-allowed: Y
 
 # listing of all common (one or more buildr projects) artifacts that have been modified
@@ -30,17 +31,6 @@ modified-artifacts:
 excluded-artifacts:
   - jmx:jmx:jar:*
   - com.rallydev.restclient:restclient:jar:*
-
-# a list of license names with a nested list of license name aliases
-license-aliases:
-#  - Apache License 2.0:
-#    - Apache
-#    - Apache 2.0
-#    - Apache License Version 2.0
-#    - Apache License, Version 2.0
-#    - Apache License, Version 2
-#    - Apache 2
-#    - The Apache Software License, Version 2.0
 
 # missing licenses
 missing-licenses:
