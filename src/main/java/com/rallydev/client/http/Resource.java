@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 import static java.lang.String.format;
 
 public class Resource {
-    private static final Pattern RESOURCE_PATTERN = Pattern.compile("/(\\p{Alnum}+)/(\\p{Alnum}+).js");
+    private static final Pattern RESOURCE_PATTERN = Pattern.compile("/([^/]+)/([^/]+).js");
 
     private final String type;
     private final String id;
