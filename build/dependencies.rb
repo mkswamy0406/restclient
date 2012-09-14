@@ -1,9 +1,10 @@
 SLF4J = "org.slf4j:slf4j-api:jar:1.6.1"
 
 JACKSON = group(
-    "jackson-core-asl",
-    "jackson-mapper-asl",
-    :under => "org.codehaus.jackson", :version => "1.9.7"
+    "jackson-core",
+    "jackson-databind",
+    "jackson-annotations",
+    :under => "com.fasterxml.jackson.core", :version => "2.0.6"
 )
 
 HTTP_CLIENT = group(
