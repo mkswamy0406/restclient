@@ -10,6 +10,7 @@ JACKSON = group(
 HTTP_CLIENT = group(
     "httpcore",
     "httpclient",
+    "httpclient-cache",
     :under => "org.apache.httpcomponents", :version => "4.1.2"
 )
 

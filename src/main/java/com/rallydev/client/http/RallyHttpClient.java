@@ -10,6 +10,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.cache.CachingHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public class RallyHttpClient implements Closeable {
         connectionManager.setDefaultMaxPerRoute(DEFAULT_CXN_PER_HOST);
         connectionManager.setMaxTotal(DEFAULT_CXN_PER_HOST * 2);
 
-        client = new DefaultHttpClient(connectionManager);
+        client = new CachingHttpClient(new DefaultHttpClient(connectionManager));
         executor = Executors.newCachedThreadPool();
 
         this.timeout = timeout;
