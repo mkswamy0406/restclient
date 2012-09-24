@@ -47,11 +47,10 @@ public class ResourceTest {
     }
 
     public void shouldBeAbleToParseAGoodResource() {
-        Resource expected = new Resource("people", "1234rews");
-
-        Resource resource = Resource.parse(expected.asString());
-
-        assertThat(expected, is(resource));
+        assertParsable("people", "1234rews");
+        assertParsable("user", "AdRG0MV0FEQrFbUQWqc1yN_zwL5Koa7hIl1uwuAH8_tQY7I2A1NBSIDiiLNgsBq2");
+        assertParsable("user", "123-jabs");
+        assertParsable("user", "123_jabs");
     }
 
     public void shouldThrowInvalidResourceExceptionWhenResourceIsNotValid() {
@@ -61,5 +60,11 @@ public class ResourceTest {
         } catch(Resource.InvalidResourceException e) {
             // Expected
         }
-    }    
+    }
+
+    private void assertParsable(String resource, String key) {
+        Resource expected = new Resource(resource, key);
+
+        assertThat(expected, is(Resource.parse(expected.asString())));
+    }
 }
