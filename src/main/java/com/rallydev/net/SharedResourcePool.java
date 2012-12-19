@@ -46,6 +46,7 @@ public class SharedResourcePool<T> {
     public <O> O use(Transaction<T, O> transaction) {
         int startIndex = resourceUsage.next(numberOfResources);
         int lastIndex = startIndex + numberOfResources;
+        List<Exception> exceptions = new ArrayList<Exception>();
 
         for(int i = startIndex; i<lastIndex; i++) {
             int index = i % numberOfResources;
@@ -55,12 +56,13 @@ public class SharedResourcePool<T> {
                 try {
                     return shared.execute(transaction);
                 } catch(Exception e) {
+                    exceptions.add(e);
                     LOGGER.warn(format("Transaction failed: %s", shared), e);
                 }
             }
         }
 
-        throw new NoResourcesCanBeUsedException();
+        throw new NoResourcesCanBeUsedException(exceptions);
     }
 
 }
