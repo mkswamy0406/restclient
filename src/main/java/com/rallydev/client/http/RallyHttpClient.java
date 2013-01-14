@@ -27,7 +27,7 @@ import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class RallyHttpClient implements Closeable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RallyHttpClient.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(RallyHttpClient.class);
 
     private static final int DEFAULT_CXN_PER_HOST = 30;
     private static final int DEFAULT_TIMEOUT = 2;
