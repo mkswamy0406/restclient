@@ -11,13 +11,11 @@ public class RequestTask implements Callable<HttpResponse> {
     public static final String TRANSACTION_HEADER = "X-Transaction-Id";
     private final HttpClient client;
     private final HttpUriRequest request;
-    private final String traceId;
     private final long enqueueTime;
 
     public RequestTask(HttpClient client, HttpUriRequest request) {
         this.client = client;
         this.request = request;
-        this.traceId = getTraceId(request);
         enqueueTime = System.currentTimeMillis();
     }
 
@@ -47,7 +45,7 @@ public class RequestTask implements Callable<HttpResponse> {
                         queueTime,
                         processingTime,
                         totalTime,
-                        traceId,
+                        getTraceId(request),
                         request.getURI(),
                         request.getMethod()));
             }
