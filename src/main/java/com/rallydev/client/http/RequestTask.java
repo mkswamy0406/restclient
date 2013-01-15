@@ -40,15 +40,13 @@ public class RequestTask implements Callable<HttpResponse> {
             long processingTime = completionTime - dequeueTime;
             long totalTime = completionTime - enqueueTime;
 
-            if(totalTime > 100) {
-                RallyHttpClient.LOGGER.info(String.format("RallyRestProcessingTime queueTime=%s processingTime=%s totalTime=%s traceId=%s uri=%s method=%s",
-                        queueTime,
-                        processingTime,
-                        totalTime,
-                        getTraceId(request),
-                        request.getURI(),
-                        request.getMethod()));
-            }
+            RallyHttpClient.LOGGER.info(String.format("RallyRestProcessingTime queueTime=%s processingTime=%s totalTime=%s traceId=%s uri=%s method=%s",
+                    queueTime,
+                    processingTime,
+                    totalTime,
+                    getTraceId(request),
+                    request.getURI(),
+                    request.getMethod()));
         }
         return response;
     }
