@@ -30,25 +30,10 @@ TESTING = [
     HAMCREST
 ]
 
-FINAGLE = [
-    "io.netty:netty:jar:3.5.5.Final",
-    "com.twitter:finagle-test:jar:6.0.3",
-    "com.twitter:util-collection:jar:6.0.4",
-    "com.twitter:util-core:jar:6.0.4",
-    "com.twitter:util-hashing:jar:6.0.4",
-    "com.twitter:util-jvm:jar:6.0.4",
-    "com.twitter:util-logging:jar:6.0.4",
-    "com.twitter:util-codec:jar:6.0.4",
-    "com.twitter:finagle-http:jar:6.0.3",
-    "com.twitter:finagle-core:jar:6.0.3",
-    "org.scala-lang:scala-library:jar:2.9.1"
-]
-
 artifact_ns do |ns|
 
   ns.ns(:compile).use HTTP_CLIENT,
                       JACKSON,
-                      FINAGLE,
                       "commons-logging:commons-logging:jar:1.1.1",
                       SLF4J
 
