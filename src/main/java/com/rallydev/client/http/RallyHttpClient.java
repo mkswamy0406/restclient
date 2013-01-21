@@ -18,10 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -48,7 +45,7 @@ public class RallyHttpClient implements Closeable {
         connectionManager.setMaxTotal(DEFAULT_CXN_PER_HOST * 2);
 
         client = new CachingHttpClient(new DefaultHttpClient(connectionManager));
-        executor = Executors.newCachedThreadPool();
+        executor = new ThreadPoolExecutor(100, 1000, 10l, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
 
         this.timeout = timeout;
         this.timeoutUnit = timeoutUnit;

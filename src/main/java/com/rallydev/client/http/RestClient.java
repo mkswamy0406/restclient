@@ -22,7 +22,10 @@ public class RestClient {
         client = ClientBuilder.safeBuild(ClientBuilder.get()
                 .codec(Http.get())
                 .hosts(hosts)
-                .hostConnectionLimit(100));
+                .retries(3)
+                .hostConnectionLimit(100)
+                .timeout(Duration.fromSeconds(2))
+                .keepAlive(true));
     }
 
     public HttpResponse execute(HttpRequest request) {
