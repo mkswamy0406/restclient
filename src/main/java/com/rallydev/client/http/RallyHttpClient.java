@@ -31,7 +31,7 @@ public class RallyHttpClient implements Closeable {
 
     private final ThreadSafeClientConnManager connectionManager;
     private final HttpClient client;
-    private final ExecutorService executor;
+    //private final ExecutorService executor;
     private final Integer timeout;
     private final TimeUnit timeoutUnit;
 
@@ -45,7 +45,7 @@ public class RallyHttpClient implements Closeable {
         connectionManager.setMaxTotal(DEFAULT_CXN_PER_HOST * 2);
 
         client = new CachingHttpClient(new DefaultHttpClient(connectionManager));
-        executor = new ThreadPoolExecutor(100, 1000, 10l, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
+        //executor = new ThreadPoolExecutor(100, 1000, 10l, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
 
         this.timeout = timeout;
         this.timeoutUnit = timeoutUnit;
@@ -70,7 +70,7 @@ public class RallyHttpClient implements Closeable {
     @Override
     public void close() throws IOException {
         connectionManager.shutdown();
-        executor.shutdown();
+        //executor.shutdown();
     }
     
     protected HttpRequestBase createRequest(String url, HttpRequest request) throws IOException {
@@ -89,7 +89,7 @@ public class RallyHttpClient implements Closeable {
             default:
                 throw new IllegalArgumentException("Unknown request type: " + request.getMethod().name());
         }
-        
+
         requestBase.setHeaders(request.getHeaders());
         return requestBase;
     }
@@ -109,14 +109,7 @@ public class RallyHttpClient implements Closeable {
     }
 
     private org.apache.http.HttpResponse timedRequest(HttpRequestBase request) throws Exception {
-        Future<org.apache.http.HttpResponse> responseFuture = executor.submit(new RequestTask(client, request));
-
-        try {
-            return responseFuture.get(timeout, timeoutUnit);
-        } finally {
-            if(responseFuture.cancel(true)) {
-                LOGGER.warn("REQUEST TIMEOUT: " + request.getRequestLine());
-            }
-        }
+        RequestTask requestTask = new RequestTask(client, request);
+        return requestTask.call();
     }
 }
