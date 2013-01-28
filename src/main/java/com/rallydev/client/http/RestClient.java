@@ -17,16 +17,17 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 
 public class RestClient {
+    public static final String CONTENT_LENGTH_HEADER = "Content-Length";
+    public static final String X_TENANT_HEADER = "x-tenant";
     private Service<org.jboss.netty.handler.codec.http.HttpRequest, org.jboss.netty.handler.codec.http.HttpResponse> client;
     private static final Logger LOGGER = LoggerFactory.getLogger(RestClient.class);
     private String tenant;
 
     public RestClient(String... hosts) {
         if (hosts == null || hosts.length == 0) {
-            throw new RuntimeException("Empty list of host names passed to RestClient is not helpful");
+            throw new IllegalArgumentException("Empty list of host names passed to RestClient is not helpful");
         }
 
         tenant = getTenant(hosts[0]);
@@ -46,9 +47,9 @@ public class RestClient {
                 .keepAlive(true));
     }
 
-    private String getTenant(String url) {
+    protected static String getTenant(String url) {
         String host = url.replace("http://", "");
-        return host.split(".")[0];
+        return host.split("\\.")[0];
     }
 
     public HttpResponse execute(HttpRequest request) {
@@ -64,18 +65,28 @@ public class RestClient {
         return httpResponse;
     }
 
-    public DefaultHttpRequest toRequest(HttpRequest request) {
-        DefaultHttpRequest nettyRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, getMethod(request), request.getURI());
+    protected DefaultHttpRequest toRequest(HttpRequest request) {
+        DefaultHttpRequest nettyRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, getMethod(request), getUri(request));
         nettyRequest.setContent(ChannelBuffers.copiedBuffer(request.getBody(), Charset.defaultCharset()));
         for(Header header : request.getHeaders()) {
-            nettyRequest.addHeader(header.getName(), header.getValue());
+            if(header.getValue() != null) {
+                nettyRequest.addHeader(header.getName(), header.getValue());
+            }
         }
-        nettyRequest.addHeader("Content-Length", ((Integer)request.getBody().getBytes().length).toString());
-        nettyRequest.addHeader("x-tenant", tenant);
+        nettyRequest.addHeader(CONTENT_LENGTH_HEADER, ((Integer)request.getBody().getBytes().length).toString());
+        nettyRequest.addHeader(X_TENANT_HEADER, tenant);
         return nettyRequest;
     }
 
-    public HttpResponse toResponse(org.jboss.netty.handler.codec.http.HttpResponse response) {
+    protected String getUri(HttpRequest request) {
+        String uri = request.getURI();
+        if(!uri.startsWith("/")) {
+            uri = "/" + uri;
+        }
+        return uri;
+    }
+
+    protected HttpResponse toResponse(org.jboss.netty.handler.codec.http.HttpResponse response) {
         return new HttpResponse(response.getStatus().getCode(), response.getContent().toString(Charset.defaultCharset()));
     }
 
@@ -83,7 +94,7 @@ public class RestClient {
         client.release();
     }
 
-    public HttpMethod getMethod(HttpRequest request) {
+    protected HttpMethod getMethod(HttpRequest request) {
         return HttpMethod.valueOf(request.getMethod().name());
     }
 }
