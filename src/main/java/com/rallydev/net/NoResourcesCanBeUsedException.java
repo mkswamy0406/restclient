@@ -2,6 +2,7 @@ package com.rallydev.net;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 public class NoResourcesCanBeUsedException extends RuntimeException {
@@ -9,6 +10,11 @@ public class NoResourcesCanBeUsedException extends RuntimeException {
 
     public NoResourcesCanBeUsedException(List<Exception> exceptions) {
         this.exceptions = exceptions;
+    }
+
+    public NoResourcesCanBeUsedException(Exception e) {
+        exceptions = new ArrayList<Exception>();
+        exceptions.add(e);
     }
 
     @Override

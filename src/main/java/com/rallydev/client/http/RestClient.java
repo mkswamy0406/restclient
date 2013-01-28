@@ -1,5 +1,6 @@
 package com.rallydev.client.http;
 
+import com.rallydev.net.NoResourcesCanBeUsedException;
 import com.twitter.finagle.Service;
 import com.twitter.finagle.builder.ClientBuilder;
 import com.twitter.finagle.http.Http;
@@ -11,12 +12,16 @@ import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.handler.codec.http.DefaultHttpRequest;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 
 public class RestClient {
     private Service<org.jboss.netty.handler.codec.http.HttpRequest, org.jboss.netty.handler.codec.http.HttpResponse> client;
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestClient.class);
     private String tenant;
 
     public RestClient(String... hosts) {
@@ -47,9 +52,16 @@ public class RestClient {
     }
 
     public HttpResponse execute(HttpRequest request) {
-        Future<org.jboss.netty.handler.codec.http.HttpResponse> responseFuture = client.apply(toRequest(request));
-        Try<org.jboss.netty.handler.codec.http.HttpResponse> responseTry = responseFuture.get(Duration.fromSeconds(2));
-        return toResponse(responseTry.apply());
+        HttpResponse httpResponse;
+        try {
+            Future<org.jboss.netty.handler.codec.http.HttpResponse> responseFuture = client.apply(toRequest(request));
+            Try<org.jboss.netty.handler.codec.http.HttpResponse> responseTry = responseFuture.get(Duration.fromSeconds(2));
+            httpResponse = toResponse(responseTry.apply());
+        } catch (Exception e) {
+            LOGGER.error("NoResourcesCanBeUsed", e);
+            throw new NoResourcesCanBeUsedException(e);
+        }
+        return httpResponse;
     }
 
     public DefaultHttpRequest toRequest(HttpRequest request) {
@@ -74,5 +86,4 @@ public class RestClient {
     public HttpMethod getMethod(HttpRequest request) {
         return HttpMethod.valueOf(request.getMethod().name());
     }
-
 }

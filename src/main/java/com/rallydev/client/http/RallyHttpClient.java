@@ -45,7 +45,6 @@ public class RallyHttpClient implements Closeable {
         connectionManager.setMaxTotal(DEFAULT_CXN_PER_HOST * 2);
 
         client = new CachingHttpClient(new DefaultHttpClient(connectionManager));
-        //executor = new ThreadPoolExecutor(100, 1000, 10l, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
 
         this.timeout = timeout;
         this.timeoutUnit = timeoutUnit;
