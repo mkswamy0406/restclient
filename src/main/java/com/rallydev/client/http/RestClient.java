@@ -49,7 +49,11 @@ public class RestClient {
 
     protected static String getTenant(String url) {
         String host = url.replace("http://", "");
-        return host.split("\\.")[0];
+        String tenant = host.split("\\.|:")[0];
+        if("localhost".equals(tenant)) {
+            tenant = System.getProperty("ALM_JDBC_USERNAME");
+        }
+        return tenant;
     }
 
     public HttpResponse execute(HttpRequest request) {

@@ -12,9 +12,7 @@ import java.util.Map;
 import static com.rallydev.client.http.RestClient.CONTENT_LENGTH_HEADER;
 import static com.rallydev.client.http.RestClient.X_TENANT_HEADER;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.jboss.netty.handler.codec.http.HttpMethod.GET;
 
 @Test
@@ -71,5 +69,10 @@ public class RestClientTest {
         HttpRequest request = HttpRequest.get("/bar").headers(new BasicHeader(HEADER_NAME, null));
         DefaultHttpRequest finagleRequest = client.toRequest(request);
         assertThat(finagleRequest.getHeader(HEADER_NAME), is(nullValue()));
+    }
+
+    public void shouldConvertLocalhostTenantToAlmJdbcUsername() {
+        assertThat(RestClient.getTenant("http://localhost"), not("localhost"));
+        assertThat(RestClient.getTenant("http://localhost:1234"), not("localhost"));
     }
 }
