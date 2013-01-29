@@ -3,3 +3,4 @@
 *.iws
 target
 reports
+.DS_Store
