@@ -79,7 +79,9 @@ public class RestClient {
             }
         }
         nettyRequest.addHeader(CONTENT_LENGTH_HEADER, ((Integer)request.getBody().getBytes().length).toString());
-        nettyRequest.addHeader(X_TENANT_HEADER, tenant);
+        if(tenant != null) {
+            nettyRequest.addHeader(X_TENANT_HEADER, tenant);
+        }
         return nettyRequest;
     }
 
