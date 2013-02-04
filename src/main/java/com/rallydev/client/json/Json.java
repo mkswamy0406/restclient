@@ -2,10 +2,12 @@ package com.rallydev.client.json;
 
 import com.rallydev.client.http.Resource;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class Json {
+public class Json implements Serializable {
     private final Map jsonMap;
+    private static final long serialVersionUID = -3823306229163397878L;
 
     public Json(Map jsonMap) {
         this.jsonMap = jsonMap;
