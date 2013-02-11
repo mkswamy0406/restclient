@@ -61,7 +61,7 @@ public class RestClient {
         HttpResponse httpResponse;
         try {
             Future<org.jboss.netty.handler.codec.http.HttpResponse> responseFuture = client.apply(toRequest(request));
-            Try<org.jboss.netty.handler.codec.http.HttpResponse> responseTry = responseFuture.get(Duration.fromSeconds(2));
+            Try<org.jboss.netty.handler.codec.http.HttpResponse> responseTry = responseFuture.get(Duration.fromSeconds(10));
             httpResponse = toResponse(responseTry.apply());
         } catch (Exception e) {
             LOGGER.error("NoResourcesCanBeUsed", e);
