@@ -4,7 +4,6 @@ import com.rallydev.net.NoResourcesCanBeUsedException;
 import com.twitter.finagle.Service;
 import com.twitter.finagle.builder.ClientBuilder;
 import com.twitter.finagle.http.Http;
-import com.twitter.util.Duration;
 import com.twitter.util.Future;
 import com.twitter.util.Try;
 import org.apache.http.Header;
@@ -17,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+
+import static com.twitter.util.Duration.fromSeconds;
 
 public class RestClient {
     public static final String CONTENT_LENGTH_HEADER = "Content-Length";
@@ -44,8 +45,9 @@ public class RestClient {
                 .retries(3)
                 .hostConnectionLimit(100)
                 .failFast(false)
-                .timeout(Duration.fromSeconds(10))
-                .keepAlive(true));
+                .timeout(fromSeconds(10))
+                .keepAlive(true)
+                .tcpConnectTimeout(fromSeconds(1)));
     }
 
     protected static String getTenant(String url) {
@@ -61,7 +63,7 @@ public class RestClient {
         HttpResponse httpResponse;
         try {
             Future<org.jboss.netty.handler.codec.http.HttpResponse> responseFuture = client.apply(toRequest(request));
-            Try<org.jboss.netty.handler.codec.http.HttpResponse> responseTry = responseFuture.get(Duration.fromSeconds(10));
+            Try<org.jboss.netty.handler.codec.http.HttpResponse> responseTry = responseFuture.get(fromSeconds(10));
             httpResponse = toResponse(responseTry.apply());
         } catch (Exception e) {
             LOGGER.error("NoResourcesCanBeUsed", e);

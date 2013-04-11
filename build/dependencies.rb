@@ -31,16 +31,16 @@ TESTING = [
 ]
 
 FINAGLE = [
-    "io.netty:netty:jar:3.5.5.Final",
-    "com.twitter:finagle-test:jar:6.0.3",
-    "com.twitter:util-collection:jar:6.0.4",
-    "com.twitter:util-core:jar:6.0.4",
-    "com.twitter:util-hashing:jar:6.0.4",
-    "com.twitter:util-jvm:jar:6.0.4",
-    "com.twitter:util-logging:jar:6.0.4",
-    "com.twitter:util-codec:jar:6.0.4",
-    "com.twitter:finagle-http:jar:6.0.3",
-    "com.twitter:finagle-core:jar:6.0.3",
+    "io.netty:netty:jar:3.5.12.Final",
+    "com.twitter:finagle-test:jar:6.3.0",
+    "com.twitter:util-collection:jar:6.3.0",
+    "com.twitter:util-core:jar:6.3.0",
+    "com.twitter:util-hashing:jar:6.3.0",
+    "com.twitter:util-jvm:jar:6.3.0",
+    "com.twitter:util-logging:jar:6.3.0",
+    "com.twitter:util-codec:jar:6.3.0",
+    "com.twitter:finagle-http:jar:6.3.0",
+    "com.twitter:finagle-core:jar:6.3.0",
     "org.scala-lang:scala-library:jar:2.9.1"
 ]
 

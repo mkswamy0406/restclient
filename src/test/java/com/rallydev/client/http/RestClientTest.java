@@ -1,13 +1,9 @@
 package com.rallydev.client.http;
 
-import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.jboss.netty.handler.codec.http.DefaultHttpRequest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import java.util.List;
-import java.util.Map;
 
 import static com.rallydev.client.http.RestClient.CONTENT_LENGTH_HEADER;
 import static com.rallydev.client.http.RestClient.X_TENANT_HEADER;
