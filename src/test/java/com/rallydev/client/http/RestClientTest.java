@@ -55,6 +55,13 @@ public class RestClientTest {
         assertThat(finagleRequest.getHeader(HEADER_NAME), is(headerValue));
     }
 
+    public void shouldNotOverrideExistingXTenantHeader() {
+        String tenant = "foo";
+        HttpRequest request = HttpRequest.get("/bar").headers(new BasicHeader(X_TENANT_HEADER, tenant));
+        DefaultHttpRequest finagleRequest = client.toRequest(request);
+        assertThat(finagleRequest.getHeader(X_TENANT_HEADER), is(tenant));
+    }
+
     public void shouldPutLeadingSlashOnUri() {
         HttpRequest request = HttpRequest.get("foo");
         DefaultHttpRequest finagleRequest = client.toRequest(request);
