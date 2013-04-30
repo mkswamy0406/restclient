@@ -44,7 +44,7 @@ public class RestClient {
                 .hosts(parsedHosts)
                 .retries(3)
                 .hostConnectionLimit(100)
-                .failFast(false)
+                .failFast(true)
                 .timeout(fromSeconds(10))
                 .keepAlive(true)
                 .tcpConnectTimeout(fromSeconds(1)));
