@@ -16,12 +16,15 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 
 import static com.twitter.util.Duration.fromSeconds;
 
 public class RestClient {
     public static final String CONTENT_LENGTH_HEADER = "Content-Length";
     public static final String X_TENANT_HEADER = "x-tenant";
+    public static final int ERROR_RESPONSE = 500;
+    public static final int MAXIMUM_RETRIES = 3;
     private Service<org.jboss.netty.handler.codec.http.HttpRequest, org.jboss.netty.handler.codec.http.HttpResponse> client;
     private static final Logger LOGGER = LoggerFactory.getLogger(RestClient.class);
     private String tenant;
@@ -60,14 +63,24 @@ public class RestClient {
     }
 
     public HttpResponse execute(HttpRequest request) {
-        HttpResponse httpResponse;
+        HttpResponse response = null;
+        for(int i =0; i< MAXIMUM_RETRIES; i++) {
+            response = getHttpResponse(request, i);
+            if(response != null && response.getCode() < ERROR_RESPONSE) {
+                return response;
+            }
+        }
+        throw new NoResourcesCanBeUsedException(new ArrayList<Exception>());
+    }
+
+    private HttpResponse getHttpResponse(HttpRequest request, int attempt) {
+        HttpResponse httpResponse = null;
         try {
             Future<org.jboss.netty.handler.codec.http.HttpResponse> responseFuture = client.apply(toRequest(request));
             Try<org.jboss.netty.handler.codec.http.HttpResponse> responseTry = responseFuture.get(fromSeconds(10));
             httpResponse = toResponse(responseTry.apply());
         } catch (Exception e) {
-            LOGGER.error("NoResourcesCanBeUsed", e);
-            throw new NoResourcesCanBeUsedException(e);
+            LOGGER.error(String.format("NoResourcesCanBeUsed attempt=%s", attempt), e);
         }
         return httpResponse;
     }
