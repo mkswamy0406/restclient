@@ -24,12 +24,19 @@ public class RestClient {
     public static final String CONTENT_LENGTH_HEADER = "Content-Length";
     public static final String X_TENANT_HEADER = "x-tenant";
     public static final int ERROR_RESPONSE = 500;
-    public static final int MAXIMUM_RETRIES = 3;
     private Service<org.jboss.netty.handler.codec.http.HttpRequest, org.jboss.netty.handler.codec.http.HttpResponse> client;
     private static final Logger LOGGER = LoggerFactory.getLogger(RestClient.class);
     private String tenant;
+    private int maximumRetries;
+    private int waitBetweenRetries;
 
     public RestClient(String... hosts) {
+        this(3, 200, hosts);
+    }
+
+    public RestClient(int maximumRetries, int waitBetweenRetries, String... hosts) {
+        this.maximumRetries = maximumRetries;
+        this.waitBetweenRetries = waitBetweenRetries;
         if (hosts == null || hosts.length == 0) {
             throw new IllegalArgumentException("Empty list of host names passed to RestClient is not helpful");
         }
@@ -37,7 +44,7 @@ public class RestClient {
         tenant = getTenant(hosts[0]);
 
         StringBuilder builder = new StringBuilder();
-        for(String host : hosts) {
+        for (String host : hosts) {
             builder.append(host.replace("http://", "").replace("/", "") + " ");
         }
         String parsedHosts = builder.toString().trim();
@@ -56,7 +63,7 @@ public class RestClient {
     protected static String getTenant(String url) {
         String host = url.replace("http://", "");
         String tenant = host.split("\\.|:")[0];
-        if("localhost".equals(tenant)) {
+        if ("localhost".equals(tenant)) {
             tenant = System.getProperty("ALM_JDBC_USERNAME");
         }
         return tenant;
@@ -64,13 +71,25 @@ public class RestClient {
 
     public HttpResponse execute(HttpRequest request) {
         HttpResponse response = null;
-        for(int i =0; i< MAXIMUM_RETRIES; i++) {
+        for (int i = 0; i < maximumRetries; i++) {
+            if (i > 0) {
+                sleep();
+            }
+
             response = getHttpResponse(request, i);
-            if(response != null && response.getCode() < ERROR_RESPONSE) {
+            if (response != null && response.getCode() < ERROR_RESPONSE) {
                 return response;
             }
         }
         throw new NoResourcesCanBeUsedException(new ArrayList<Exception>());
+    }
+
+    private void sleep() {
+        try {
+            Thread.sleep(waitBetweenRetries);
+        } catch (InterruptedException e) {
+            //Keep on trucking
+        }
     }
 
     private HttpResponse getHttpResponse(HttpRequest request, int attempt) {
@@ -88,13 +107,13 @@ public class RestClient {
     protected DefaultHttpRequest toRequest(HttpRequest request) {
         DefaultHttpRequest nettyRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, getMethod(request), getUri(request));
         nettyRequest.setContent(ChannelBuffers.copiedBuffer(request.getBody(), Charset.defaultCharset()));
-        for(Header header : request.getHeaders()) {
-            if(header.getValue() != null) {
+        for (Header header : request.getHeaders()) {
+            if (header.getValue() != null) {
                 nettyRequest.addHeader(header.getName(), header.getValue());
             }
         }
-        nettyRequest.addHeader(CONTENT_LENGTH_HEADER, ((Integer)request.getBody().getBytes().length).toString());
-        if(tenant != null && !nettyRequest.containsHeader(X_TENANT_HEADER)) {
+        nettyRequest.addHeader(CONTENT_LENGTH_HEADER, ((Integer) request.getBody().getBytes().length).toString());
+        if (tenant != null && !nettyRequest.containsHeader(X_TENANT_HEADER)) {
             nettyRequest.addHeader(X_TENANT_HEADER, tenant);
         }
         return nettyRequest;
@@ -102,7 +121,7 @@ public class RestClient {
 
     protected String getUri(HttpRequest request) {
         String uri = request.getURI();
-        if(!uri.startsWith("/")) {
+        if (!uri.startsWith("/")) {
             uri = "/" + uri;
         }
         return uri;
