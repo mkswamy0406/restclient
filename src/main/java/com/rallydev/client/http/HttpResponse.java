@@ -9,6 +9,7 @@ import static org.apache.http.HttpStatus.SC_OK;
 public class HttpResponse {
     private final String body;
     private final int code;
+    private String location;
     
     public HttpResponse(int code, Object... body) {
         this.code = code;
@@ -20,6 +21,12 @@ public class HttpResponse {
         this.code = code;
     }
 
+    public HttpResponse(int code, String body, String location) {
+        this.body = body;
+        this.code = code;
+        this.location = location;
+    }
+
     public String getBody() {
         return body;
     }
@@ -27,6 +34,8 @@ public class HttpResponse {
     public int getCode() {
         return code;
     }
+
+    public String getLocation() { return location; }
 
     public Json getBodyAsJson() {
         return deserializeJson(getBody());
