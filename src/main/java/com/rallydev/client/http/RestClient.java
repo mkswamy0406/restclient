@@ -128,11 +128,11 @@ public class RestClient {
     }
 
     protected HttpResponse toResponse(org.jboss.netty.handler.codec.http.HttpResponse response) {
-        return new HttpResponse(
+        HttpResponse httpResponse = new HttpResponse(
                 response.getStatus().getCode(),
-                response.getContent().toString(Charset.defaultCharset()),
-                response.getHeader("Location")
-        );
+                response.getContent().toString(Charset.defaultCharset()));
+        httpResponse.setLocation(response.getHeader("Location"));
+        return httpResponse;
     }
 
     public void close() throws IOException {

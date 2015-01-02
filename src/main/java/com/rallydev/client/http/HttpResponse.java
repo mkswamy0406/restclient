@@ -21,12 +21,6 @@ public class HttpResponse {
         this.code = code;
     }
 
-    public HttpResponse(int code, String body, String location) {
-        this.body = body;
-        this.code = code;
-        this.location = location;
-    }
-
     public String getBody() {
         return body;
     }
@@ -36,6 +30,8 @@ public class HttpResponse {
     }
 
     public String getLocation() { return location; }
+
+    public void setLocation(String location) { this.location = location; }
 
     public Json getBodyAsJson() {
         return deserializeJson(getBody());
